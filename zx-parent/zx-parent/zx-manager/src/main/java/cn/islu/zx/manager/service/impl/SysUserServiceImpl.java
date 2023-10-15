@@ -32,6 +32,11 @@ public class SysUserServiceImpl implements SysUserService {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
+    @Override
+    public SysUser getUserInfo(String token) {
+        String userJson = redisTemplate.opsForValue().get("user:login:" + token);
+        return JSON.parseObject(userJson, SysUser.class);
+    }
 
     @Override
     public LoginVo login(LoginDto loginDto) {
@@ -61,9 +66,6 @@ public class SysUserServiceImpl implements SysUserService {
         // 用户存在  比对输入密码是否与redis一直
         String inputPassword = loginDto.getPassword();
         String md5InputPassword = DigestUtils.md5DigestAsHex(inputPassword.getBytes());
-        System.out.println(md5InputPassword);
-
-        System.out.println(sysUser.getPassword());
 
         if (!md5InputPassword.equals(sysUser.getPassword())) {
             throw new DefineException(ResultCodeEnum.LOGIN_ERROR);

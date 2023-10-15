@@ -31,7 +31,7 @@ export const GetValidateCode = () => {
 // 获取登录用户信息
 export const GetUserinfo = () => {
   return request({
-    url: '/admin/system/index/userinfo',
+    url: '/admin/system/index/getUserInfo',
     method: 'get',
   })
 }

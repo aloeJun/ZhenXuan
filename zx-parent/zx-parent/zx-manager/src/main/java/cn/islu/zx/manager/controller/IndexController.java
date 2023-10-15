@@ -3,6 +3,7 @@ package cn.islu.zx.manager.controller;
 import cn.islu.zx.manager.service.SysUserService;
 import cn.islu.zx.manager.service.ValidateCodeService;
 import cn.islu.zx.model.dto.system.LoginDto;
+import cn.islu.zx.model.entity.system.SysUser;
 import cn.islu.zx.model.vo.common.Result;
 import cn.islu.zx.model.vo.common.ResultCodeEnum;
 import cn.islu.zx.model.vo.system.LoginVo;
@@ -26,6 +27,12 @@ public class IndexController {
 
     @Autowired
     private ValidateCodeService validateCodeService;
+
+    @GetMapping(value = "/getUserInfo")
+    public Result<SysUser> getUserInfo(@RequestHeader(name = "token") String token) {
+        SysUser sysUser = sysUserService.getUserInfo(token) ;
+        return Result.build(sysUser , ResultCodeEnum.SUCCESS) ;
+    }
 
     @GetMapping(value = "/generateValidateCode")
     public Result<ValidateCodeVo> generateValidateCode() {
