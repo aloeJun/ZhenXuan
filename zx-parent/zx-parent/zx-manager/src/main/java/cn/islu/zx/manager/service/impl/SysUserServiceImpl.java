@@ -1,10 +1,12 @@
 package cn.islu.zx.manager.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.islu.zx.common.exception.DefineException;
 import cn.islu.zx.manager.mapper.SysUserMapper;
 import cn.islu.zx.manager.service.SysUserService;
 import cn.islu.zx.model.dto.system.LoginDto;
 import cn.islu.zx.model.entity.system.SysUser;
+import cn.islu.zx.model.vo.common.ResultCodeEnum;
 import cn.islu.zx.model.vo.system.LoginVo;
 import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +41,10 @@ public class SysUserServiceImpl implements SysUserService {
         String codeKey = loginDto.getCodeKey();     // redis中验证码的数据key
 
         // 从Redis中获取验证码
-        String redisCode = (String) redisTemplate.opsForValue().get("user:login:validatecode:" + codeKey);
+        String redisCode = redisTemplate.opsForValue().get("user:login:validatecode:" + codeKey);
 
         if (StrUtil.isEmpty(redisCode) || !StrUtil.equalsIgnoreCase(redisCode, captcha)) {
-            throw new RuntimeException("验证码错误");
+            throw new DefineException(ResultCodeEnum.VALIDATECODE_ERROR);
         }
 
         // 验证通过删除redis中的验证码
@@ -53,7 +55,7 @@ public class SysUserServiceImpl implements SysUserService {
 
 
         if (sysUser == null) {
-            throw new RuntimeException("用户不存在");
+            throw new DefineException(ResultCodeEnum.LOGIN_ERROR);
         }
 
         // 用户存在  比对输入密码是否与redis一直
@@ -64,7 +66,7 @@ public class SysUserServiceImpl implements SysUserService {
         System.out.println(sysUser.getPassword());
 
         if (!md5InputPassword.equals(sysUser.getPassword())) {
-            throw new RuntimeException("密码错误");
+            throw new DefineException(ResultCodeEnum.LOGIN_ERROR);
         }
 
         String token = UUID.randomUUID().toString().replaceAll("-", "");
