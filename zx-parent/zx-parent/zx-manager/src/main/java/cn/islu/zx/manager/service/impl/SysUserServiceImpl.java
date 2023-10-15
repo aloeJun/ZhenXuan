@@ -1,6 +1,6 @@
 package cn.islu.zx.manager.service.impl;
 
-import cn.hutool.crypto.digest.DigestUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.islu.zx.manager.mapper.SysUserMapper;
 import cn.islu.zx.manager.service.SysUserService;
 import cn.islu.zx.model.dto.system.LoginDto;
@@ -28,11 +28,26 @@ public class SysUserServiceImpl implements SysUserService {
     private SysUserMapper sysUserMapper;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
 
     @Override
     public LoginVo login(LoginDto loginDto) {
+
+        // 校验验证码是否正确
+        String captcha = loginDto.getCaptcha();     // 用户输入的验证码
+        String codeKey = loginDto.getCodeKey();     // redis中验证码的数据key
+
+        // 从Redis中获取验证码
+        String redisCode = (String) redisTemplate.opsForValue().get("user:login:validatecode:" + codeKey);
+
+        if (StrUtil.isEmpty(redisCode) || !StrUtil.equalsIgnoreCase(redisCode, captcha)) {
+            throw new RuntimeException("验证码错误");
+        }
+
+        // 验证通过删除redis中的验证码
+        redisTemplate.delete("user:login:validatecode:" + codeKey);
+
         // 获取用户
         SysUser sysUser = sysUserMapper.selectByUserName(loginDto.getUserName());
 

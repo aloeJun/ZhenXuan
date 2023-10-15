@@ -20,6 +20,14 @@ export const Login = data => {
   })
 }
 
+// 获取验证码
+export const GetValidateCode = () => {
+  return request({
+    url: "/admin/system/index/generateValidateCode",
+    method: 'get'
+  })
+}
+
 // 获取登录用户信息
 export const GetUserinfo = () => {
   return request({
