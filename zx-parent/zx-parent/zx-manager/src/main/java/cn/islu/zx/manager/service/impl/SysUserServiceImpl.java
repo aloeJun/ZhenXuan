@@ -39,6 +39,11 @@ public class SysUserServiceImpl implements SysUserService {
     }
 
     @Override
+    public void logout(String token) {
+        redisTemplate.delete("user:login:" + token);
+    }
+
+    @Override
     public LoginVo login(LoginDto loginDto) {
 
         // 校验验证码是否正确

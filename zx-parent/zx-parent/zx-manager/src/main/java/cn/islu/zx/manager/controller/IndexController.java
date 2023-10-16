@@ -28,6 +28,12 @@ public class IndexController {
     @Autowired
     private ValidateCodeService validateCodeService;
 
+    @GetMapping(value = "/logout")
+    public Result logout(@RequestHeader(value = "token") String token) {
+        sysUserService.logout(token) ;
+        return Result.build(null , ResultCodeEnum.SUCCESS) ;
+    }
+
     @GetMapping(value = "/getUserInfo")
     public Result<SysUser> getUserInfo(@RequestHeader(name = "token") String token) {
         SysUser sysUser = sysUserService.getUserInfo(token) ;

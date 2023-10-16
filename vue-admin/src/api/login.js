@@ -35,3 +35,11 @@ export const GetUserinfo = () => {
     method: 'get',
   })
 }
+
+// 退出功能
+export const Logout = () => {
+  return request({
+    url: '/admin/system/index/logout',
+    method: 'get',
+  })
+}
