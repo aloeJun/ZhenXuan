@@ -9,6 +9,8 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /**
  * @author aloeJun
  * @date 2023/10/18 10:13
@@ -21,21 +23,34 @@ public class SysRoleController {
     @Autowired
     private SysRoleService sysRoleService;
 
+    @GetMapping(value = "/findAllRoles/{userId}")
+    public Result<Map<String , Object>> findAllRoles(@PathVariable(value = "userId") Long userId) {
+        Map<String, Object> resultMap = sysRoleService.findAllRoles(userId);
+        return Result.build(resultMap , ResultCodeEnum.SUCCESS)  ;
+    }
+
+    @GetMapping(value = "findAllRoles")
+    public Result findAllRoles() {
+        Map<String,Object> result = sysRoleService.finAllRoles();
+        return Result.build(result, ResultCodeEnum.SUCCESS);
+    }
 
     @DeleteMapping(value = "/deleteById/{roleId}")
     public Result deleteById(@PathVariable(value = "roleId") Long roleId) {
-        sysRoleService.deleteById(roleId) ;
-        return Result.build(null , ResultCodeEnum.SUCCESS) ;
+        sysRoleService.deleteById(roleId);
+        return Result.build(null, ResultCodeEnum.SUCCESS);
     }
+
     @PutMapping(value = "updateSysRole")
-    public Result updateSysRole(@RequestBody SysRole sysRole){
+    public Result updateSysRole(@RequestBody SysRole sysRole) {
         sysRoleService.updateSysRole(sysRole);
-        return Result.build(null,ResultCodeEnum.SUCCESS);
+        return Result.build(null, ResultCodeEnum.SUCCESS);
     }
-    @PostMapping(value = "/saveSysRole")
-    public Result saveSysRole(@RequestBody SysRole sysRole){
-        sysRoleService.saveSysRole(sysRole) ;
-        return Result.build(null,ResultCodeEnum.SUCCESS);
+
+    @PostMapping(value = "/createSysRole")
+    public Result createSysRole(@RequestBody SysRole sysRole) {
+        sysRoleService.createSysRole(sysRole);
+        return Result.build(null, ResultCodeEnum.SUCCESS);
     }
 
     @PostMapping(value = "/findByPage/{pageNum}/{pageSize}")

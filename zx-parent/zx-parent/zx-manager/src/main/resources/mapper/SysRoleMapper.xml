@@ -25,7 +25,7 @@
         order by id desc
     </select>
 
-    <insert id="saveSysRole">
+    <insert id="createSysRole">
         insert into sys_role (id,role_name,role_code,description)values (#{id},#{roleName},#{roleCode},#{description})
     </insert>
 
@@ -48,4 +48,8 @@
     <update id="deleteById">
         update sys_role set is_deleted=1 where id=#{roleId}
     </update>
+    <select id="findAllRoles" resultMap="sysRoleMap">
+        select <include refid="columns" />
+        from sys_role where is_deleted = 0
+    </select>
 </mapper>

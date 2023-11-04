@@ -2,18 +2,25 @@ package cn.islu.zx.manager.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.islu.zx.common.exception.DefineException;
+import cn.islu.zx.manager.mapper.SysRoleUserMapper;
 import cn.islu.zx.manager.mapper.SysUserMapper;
 import cn.islu.zx.manager.service.SysUserService;
+import cn.islu.zx.model.dto.system.AssginRoleDto;
 import cn.islu.zx.model.dto.system.LoginDto;
+import cn.islu.zx.model.dto.system.SysUserDto;
 import cn.islu.zx.model.entity.system.SysUser;
 import cn.islu.zx.model.vo.common.ResultCodeEnum;
 import cn.islu.zx.model.vo.system.LoginVo;
 import com.alibaba.fastjson.JSON;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -25,12 +32,14 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SysUserServiceImpl implements SysUserService {
 
-
     @Autowired
     private SysUserMapper sysUserMapper;
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
+    private SysRoleUserMapper sysRoleUserMapper;
 
     @Override
     public SysUser getUserInfo(String token) {
@@ -41,6 +50,54 @@ public class SysUserServiceImpl implements SysUserService {
     @Override
     public void logout(String token) {
         redisTemplate.delete("user:login:" + token);
+    }
+
+    @Override
+    public PageInfo<SysUser> findByPage(SysUserDto sysUserDto, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<SysUser> list = sysUserMapper.findByPage(sysUserDto);
+        PageInfo<SysUser> pageInfo = new PageInfo<>(list);
+        return pageInfo;
+    }
+
+    @Override
+    public void createSysUser(SysUser sysUser) {
+        // 根据输入的用户名查询用户
+        SysUser dbSysUser = sysUserMapper.selectByUserName(sysUser.getUserName());
+        if (dbSysUser != null) {
+            throw new DefineException(ResultCodeEnum.USER_NAME_IS_EXISTS);
+        }
+        // 对密码进行加密
+        String password = sysUser.getPassword();
+        String digestPassword = DigestUtils.md5DigestAsHex(password.getBytes());
+        sysUser.setPassword(digestPassword);
+        sysUser.setStatus(0);
+        sysUserMapper.createSysUser(sysUser);
+    }
+
+    @Override
+    public void updateSysUser(SysUser sysUser) {
+        System.out.println(sysUser.getAvatar());
+        sysUserMapper.updateSysUser(sysUser);
+    }
+
+    @Override
+    public void deleteById(Long userId) {
+        sysUserMapper.deleteById(userId);
+    }
+
+    @Transactional
+    @Override
+    public void doAssign(AssginRoleDto assginRoleDto) {
+
+        // 删除之前的所有的用户所对应的角色数据
+        sysRoleUserMapper.deleteByUserId(assginRoleDto.getUserId());
+
+        // 分配新的角色数据
+        List<Long> roleIdList = assginRoleDto.getRoleIdList();
+        roleIdList.forEach(roleId -> {
+            sysRoleUserMapper.doAssign(assginRoleDto.getUserId(), roleId);
+        });
     }
 
     @Override

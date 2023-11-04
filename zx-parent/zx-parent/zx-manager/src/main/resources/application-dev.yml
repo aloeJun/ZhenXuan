@@ -4,12 +4,12 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.137.2:3306/db_zx?characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://42.192.43.90:3306/db_zx?characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: root
   data:
     redis:
-      host: 192.168.137.2
+      host: 42.192.43.90
       port: 6379
       password: root
 
@@ -23,3 +23,8 @@ zx:
     noAuthUrls:
       - /admin/system/index/login
       - /admin/system/index/generateValidateCode
+  minio:
+    endpoint-url: http://42.192.43.90:9001
+    access-key: UlSlUKPPL5a6UQXgiFHB
+    secre-key: TXikHaBaYIUM0BhV7MMdaJml2zaeY1zRQvxfI6mk
+    bucket-name: zx-bucket
